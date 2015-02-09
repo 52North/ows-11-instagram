@@ -87,4 +87,8 @@ public class InstagramCrawler {
 		return result;
 	}
 	
+	public static void main(String[] args) throws DecodingException {
+		new InstagramCrawler().searchForImagesAt(51.930077892, 7.625061267);
+	}
+	
 }

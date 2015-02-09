@@ -28,23 +28,50 @@
  */
 package org.n52.instagram;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.n52.instagram.decode.DecodingException;
+import org.n52.instagram.decode.JsonUtil;
 import org.n52.instagram.decode.MediaDecoder;
+import org.n52.instagram.model.PostedImage;
+
+import static org.hamcrest.CoreMatchers.*;
 
 public class MediaDecoderTest {
 
 	
 	@Test
-	public void testParsing() throws DecodingException {
+	public void testParsing() throws DecodingException, IOException {
 		MediaDecoder decoder = new MediaDecoder();
-		decoder.parseMediaEntries(getClass().getResourceAsStream("media-result.json"));
+		List<PostedImage> entries = decoder.parseMediaEntries(JsonUtil.createJson(getClass().getResourceAsStream("media-result.json")));
+		
+		Assert.assertThat(entries.size(), is(16));
+		
+		PostedImage first = entries.get(0);
+		PostedImage last = entries.get(entries.size()-1);
+		
+		Assert.assertThat(first.getUser().getId(), is("375488012"));
+		Assert.assertThat(last.getUser().getId(), is("282034696"));
+		
+		Assert.assertTrue(first.getTags().contains("münster"));
+		
+		Assert.assertThat(first.getLocation().getLatitude(), is(51.930077892));
+		Assert.assertThat(first.getLocation().getLongitude(), is(7.625061267));
+		Assert.assertThat(first.getLocation().getName(), is("Preußenstadion"));
+		
+		Assert.assertThat(first.getLink(), is("http://instagram.com/p/y4NIpoLxb1/"));
+		Assert.assertThat(first.getCreatedTime(), is(new DateTime(1423480138)));
+		Assert.assertThat(first.getImageUrl(), is("http://scontent-b.cdninstagram.com/hphotos-xfp1/t51.2885-15/e15/1738807_817181801669643_1680497657_n.jpg"));
 	}
 	
 	@Test(expected=DecodingException.class)
-	public void testReturnStatus() throws DecodingException {
+	public void testReturnStatus() throws DecodingException, IOException {
 		MediaDecoder decoder = new MediaDecoder();
-		decoder.parseMediaEntries(getClass().getResourceAsStream("media-result-failed.json"));
+		decoder.parseMediaEntries(JsonUtil.createJson(getClass().getResourceAsStream("media-result-failed.json")));
 	}
 	
 	@Test(expected=DecodingException.class)

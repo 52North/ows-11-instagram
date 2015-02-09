@@ -28,10 +28,24 @@
  */
 package org.n52.instagram.dao;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.util.Map;
+
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.n52.instagram.decode.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RemoteMediaDAO implements MediaDAO {
+	
+	private static final Logger logger = LoggerFactory
+			.getLogger(RemoteMediaDAO.class);
 
+	private String TARGET_URL_LAT_LON_SCHEME = "%s/media/search?lat=%s&lng=%s&access_token=%s";
+	
 	private String baseUrl;
 	private String accessToken;
 
@@ -41,8 +55,23 @@ public class RemoteMediaDAO implements MediaDAO {
 	}
 
 	@Override
-	public InputStream search(double latitude, double longitude) {
-		// TODO Auto-generated method stub
+	public Map<?, ?> search(double latitude, double longitude) {
+		HttpGet get = new HttpGet(String.format(TARGET_URL_LAT_LON_SCHEME,
+				baseUrl, latitude, longitude, accessToken));
+		try (CloseableHttpClient client = HttpClientBuilder.create().build();) {
+			CloseableHttpResponse response = client.execute(get);
+			
+			if (response.getEntity() != null) {
+				Map<?, ?> json = JsonUtil.createJson(response.getEntity().getContent());
+				return json;
+			}
+			else {
+				logger.warn("Could not retrieve contents. No entity.");
+			}
+		} catch (IOException e) {
+			logger.warn("Could not retrieve contents of "+get.getURI(), e);
+		}
+		
 		return null;
 	}
 

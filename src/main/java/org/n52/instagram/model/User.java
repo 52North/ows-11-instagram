@@ -26,12 +26,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  */
-package org.n52.instagram.dao;
+package org.n52.instagram.model;
 
 import java.util.Map;
 
-public interface MediaDAO {
+public class User {
 
-	Map<?, ?> search(double latitude, double longitude);
+	private String name;
+	private String id;
+
+	private User() {
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getId() {
+		return id;
+	}
+
+	public static User fromMap(Map<?, ?> map) {
+		User result = new User();
+		result.name = (String) map.get("username");
+		result.id = (String) map.get("id");
+		return result;
+	}
 
 }

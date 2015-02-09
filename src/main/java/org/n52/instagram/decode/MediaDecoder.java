@@ -28,8 +28,7 @@
  */
 package org.n52.instagram.decode;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,22 +41,36 @@ public class MediaDecoder {
 	private static final Logger logger = LoggerFactory
 			.getLogger(MediaDecoder.class);
 
-	public List<PostedImage> parseMediaEntries(InputStream content) throws DecodingException {
-		if (content == null) {
-			throw new DecodingException("Could not retrieve contents. Content="+content);
-		}
-		
-		Map<?, ?> json;
-		try {
-			json = JsonUtil.createJson(content);
-		} catch (IOException e) {
-			logger.warn("JSON response malformed!");
-			throw new DecodingException(e);
-		}
-
+	public List<PostedImage> parseMediaEntries(Map<?, ?> json) throws DecodingException {
 		assertMeta(json.get("meta"));
 		
-		return null;
+		List<PostedImage> result = parseData(json.get("data"));
+		return result;
+	}
+
+	private List<PostedImage> parseData(Object object) throws DecodingException {
+		if (!(object instanceof List<?>)) {
+			throw new DecodingException("Could not process contents of data element: "+ object);
+		}
+		
+		List<?> data = (List<?>) object;
+		
+		List<PostedImage> result = new ArrayList<>();
+		for (Object d : data) {
+			if (d instanceof Map<?, ?>) {
+				try {
+					result.add(PostedImage.fromMap((Map<?, ?>) d));
+				}
+				catch (DecodingException e) {
+					logger.info("Could not parse data instance. "+ e.getMessage());
+				}
+			}
+			else {
+				logger.warn("Could not process element: "+d);
+			}
+		}
+		
+		return result;
 	}
 
 	private void assertMeta(Object object) throws DecodingException {

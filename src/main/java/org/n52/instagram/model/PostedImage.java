@@ -28,6 +28,125 @@
  */
 package org.n52.instagram.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.n52.instagram.decode.DecodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PostedImage {
+	
+	private static final Logger logger = LoggerFactory
+			.getLogger(PostedImage.class);
+
+	private String id;
+	private User user;
+	private Location location;
+	private List<String> tags;
+	private String caption;
+	private DateTime createdTime;
+	private String imageUrl;
+	private String link;
+	
+	public String getId() {
+		return id;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+	
+	public String getCaption() {
+		return caption;
+	}
+
+	public DateTime getCreatedTime() {
+		return createdTime;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	
+	public String getLink() {
+		return link;
+	}
+
+	private PostedImage() {
+	}
+	
+	public static PostedImage fromMap(Map<?, ?> d) throws DecodingException {
+		Object type = d.get("type");
+		if (!type.equals("image")) {
+			throw new DecodingException("Not of type image! type="+type);
+		}
+		
+		PostedImage result = new PostedImage();
+		result.id = (String) d.get("id");
+		
+		result.user = User.fromMap((Map<?, ?>) d.get("user"));
+		result.location = Location.fromMap((Map<?, ?>) d.get("location"));
+		
+		result.tags = parseTags(d.get("tags"));
+		result.caption = parseCaption(d.get("caption"));
+		result.imageUrl = parseImageUrl(d.get("images"));
+		result.createdTime = parseCreatedTime(d.get("created_time"));
+		result.link = (String) d.get("link");
+		
+		return result;
+	}
+
+	private static DateTime parseCreatedTime(Object object) {
+		try {
+			int ts = Integer.parseInt(object.toString());
+			DateTime result = new DateTime(ts);
+			return result;
+		}
+		catch (IllegalArgumentException e) {
+			logger.warn("Could not parse time: "+ object);
+		}
+		return null;
+	}
+
+	private static String parseImageUrl(Object object) {
+		if (object instanceof Map<?, ?>) {
+			Object standard = ((Map<?, ?>) object).get("standard_resolution");
+			if (standard instanceof Map<?, ?>) {
+				return (String) ((Map<?, ?>) standard).get("url");
+			}
+		}
+		return null;
+	}
+
+	private static String parseCaption(Object object) {
+		if (object instanceof Map<?, ?>) {
+			return (String) ((Map<?, ?>) object).get("text");
+		}
+		return null;
+	}
+
+	private static List<String> parseTags(Object object) {
+		List<String> result = new ArrayList<>();
+		
+		if (object instanceof List<?>) {
+			for (Object string : (List<?>) object) {
+				result.add((String) string);
+			}
+		}
+		
+		return result;
+	}
+
 
 }
