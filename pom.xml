@@ -12,6 +12,13 @@
 	<version>1.0.0-SNAPSHOT</version>
 
 	<inceptionYear>2015</inceptionYear>
+	
+	<licenses>
+		<license>
+			<name>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</name>
+			<url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
