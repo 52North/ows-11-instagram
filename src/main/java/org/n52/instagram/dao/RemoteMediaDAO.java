@@ -28,51 +28,75 @@
  */
 package org.n52.instagram.dao;
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.n52.instagram.decode.JsonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.time.DateTime;
 
-public class RemoteMediaDAO implements MediaDAO {
+public class RemoteMediaDAO extends AbstractRemoteDAO implements MediaDAO {
 	
-	private static final Logger logger = LoggerFactory
-			.getLogger(RemoteMediaDAO.class);
 
-	private String TARGET_URL_LAT_LON_SCHEME = "%s/media/search?lat=%s&lng=%s&access_token=%s";
+	private String LAT_LON_SCHEME = "%s/media/search?lat=%s&lng=%s&access_token=%s";
+	private String LAT_LON_DIST_SCHEME = "%s/media/search?lat=%s&lng=%s&distance=%s&access_token=%s";
 	
-	private String baseUrl;
-	private String accessToken;
-
+	private String LAT_LON_DIST_FROM_TO_SCHEME = "%s/media/search?lat=%s&lng=%s&distance=%s&min_timestamp=%s&max_timestamp=%s&access_token=%s";
+	private String LAT_LON_DIST_FROM_SCHEME = "%s/media/search?lat=%s&lng=%s&distance=%s&min_timestamp=%s&access_token=%s";
+	private String LAT_LON_DIST_TO_SCHEME = "%s/media/search?lat=%s&lng=%s&distance=%s&max_timestamp=%s&access_token=%s";
+	
+	private String LAT_LON_FROM_TO_SCHEME = "%s/media/search?lat=%s&lng=%s&min_timestamp=%s&max_timestamp=%s&access_token=%s";
+	private String LAT_LON_FROM_SCHEME = "%s/media/search?lat=%s&lng=%s&min_timestamp=%s&access_token=%s";
+	private String LAT_LON_TO_SCHEME = "%s/media/search?lat=%s&lng=%s&max_timestamp=%s&access_token=%s";
+	
 	public RemoteMediaDAO(String baseUrl, String accessToken) {
-		this.baseUrl = baseUrl;
-		this.accessToken = accessToken;
+		super(baseUrl, accessToken);
 	}
 
 	@Override
 	public Map<?, ?> search(double latitude, double longitude) {
-		HttpGet get = new HttpGet(String.format(TARGET_URL_LAT_LON_SCHEME,
+		return executeApiRequest(String.format(LAT_LON_SCHEME,
 				baseUrl, latitude, longitude, accessToken));
-		try (CloseableHttpClient client = HttpClientBuilder.create().build();) {
-			CloseableHttpResponse response = client.execute(get);
-			
-			if (response.getEntity() != null) {
-				Map<?, ?> json = JsonUtil.createJson(response.getEntity().getContent());
-				return json;
-			}
-			else {
-				logger.warn("Could not retrieve contents. No entity.");
-			}
-		} catch (IOException e) {
-			logger.warn("Could not retrieve contents of "+get.getURI(), e);
+	}
+
+	@Override
+	public Map<?, ?> search(double latitude, double longitude,
+			int distanceMeters) {
+		return executeApiRequest(String.format(LAT_LON_DIST_SCHEME,
+				baseUrl, latitude, longitude, distanceMeters, accessToken));
+	}
+
+	@Override
+	public Map<?, ?> search(double latitude, double longitude,
+			DateTime fromDate, DateTime toDate) {
+		if (fromDate != null && toDate != null) {
+			return executeApiRequest(String.format(LAT_LON_FROM_TO_SCHEME,
+					baseUrl, latitude, longitude, fromDate.toDate().getTime(), toDate.toDate().getTime(), accessToken));
+		}
+		else if (fromDate == null && toDate != null) {
+			return executeApiRequest(String.format(LAT_LON_TO_SCHEME,
+					baseUrl, latitude, longitude, toDate.toDate().getTime(), accessToken));
+		}
+		else {
+			return executeApiRequest(String.format(LAT_LON_FROM_SCHEME,
+					baseUrl, latitude, longitude, fromDate.toDate().getTime(), accessToken));
 		}
 		
-		return null;
 	}
+
+	@Override
+	public Map<?, ?> search(double latitude, double longitude,
+			int distanceMeters, DateTime fromDate, DateTime toDate) {
+		if (fromDate != null && toDate != null) {
+			return executeApiRequest(String.format(LAT_LON_DIST_FROM_TO_SCHEME,
+					baseUrl, latitude, longitude, distanceMeters, fromDate.toDate().getTime(), toDate.toDate().getTime(), accessToken));
+		}
+		else if (fromDate == null && toDate != null) {
+			return executeApiRequest(String.format(LAT_LON_DIST_TO_SCHEME,
+					baseUrl, latitude, longitude, distanceMeters, toDate.toDate().getTime(), accessToken));
+		}
+		else {
+			return executeApiRequest(String.format(LAT_LON_DIST_FROM_SCHEME,
+					baseUrl, latitude, longitude, distanceMeters, fromDate.toDate().getTime(), accessToken));
+		}
+	}
+
 
 }

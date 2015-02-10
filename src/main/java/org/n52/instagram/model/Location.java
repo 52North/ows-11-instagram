@@ -57,6 +57,10 @@ public class Location {
 	}
 
 	public static Location fromMap(Map<?, ?> map) {
+		if (map == null) {
+			return null;
+		}
+		
 		Location result = new Location();
 		
 		result.latitude = (Double) map.get("latitude");

@@ -30,16 +30,8 @@ package org.n52.instagram.dao;
 
 import java.util.Map;
 
-import org.joda.time.DateTime;
-
-public interface MediaDAO {
-
-	Map<?, ?> search(double latitude, double longitude);
+public interface TagDAO {
 	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters);
-	
-	Map<?, ?> search(double latitude, double longitude, DateTime fromDate, DateTime toDate);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters, DateTime fromDate, DateTime toDate);
+	Map<?, ?> search(String tag);
 
 }

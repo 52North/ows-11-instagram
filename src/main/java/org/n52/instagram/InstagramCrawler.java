@@ -31,12 +31,18 @@ package org.n52.instagram;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
+import org.n52.instagram.dao.InvalidFilterException;
 import org.n52.instagram.dao.MediaDAO;
 import org.n52.instagram.dao.RemoteMediaDAO;
+import org.n52.instagram.dao.RemoteTagDAO;
 import org.n52.instagram.decode.DecodingException;
+import org.n52.instagram.decode.Filter;
 import org.n52.instagram.decode.MediaDecoder;
 import org.n52.instagram.model.PostedImage;
 import org.slf4j.Logger;
@@ -77,18 +83,50 @@ public class InstagramCrawler {
 		
 	}
 	
-	public List<PostedImage> searchForImagesAt(double latitude, double longitude) throws DecodingException {
+	public Collection<PostedImage> searchForImagesAt(double latitude, double longitude) throws DecodingException {
 		List<PostedImage> result = new ArrayList<>();
 		
 		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
 		MediaDecoder decoder = new MediaDecoder();
 		
-		result = decoder.parseMediaEntries(dao.search(latitude, longitude));
+		result = decoder.parseMediaEntries(dao.search(latitude, longitude, 5000));
 		return result;
 	}
 	
-	public static void main(String[] args) throws DecodingException {
-		new InstagramCrawler().searchForImagesAt(51.930077892, 7.625061267);
+	public Collection<PostedImage> searchForImagesByTags(final String... tags) throws DecodingException, InvalidFilterException {
+		Set<PostedImage> result = new HashSet<>();
+		
+		if (tags != null && tags.length > 0 && tags.length <= 3) {
+			RemoteTagDAO dao = new RemoteTagDAO(baseUrl, accessToken);
+			MediaDecoder decoder = new MediaDecoder();
+
+			for (String t : tags) {
+				result.addAll(decoder.parseMediaEntries(dao.search(t), new Filter() {
+					
+					@Override
+					public boolean accepts(PostedImage candidate) {
+						List<String> candidateTags = candidate.getTags();
+						for (String string : tags) {
+							if (!candidateTags.contains(string)) {
+								return false;
+							}
+						}
+						return true;
+					}
+				}));
+			}
+		}
+		else {
+			throw new InvalidFilterException("At least one and maximum three tags are allowed");
+		}
+		
+		return result;	
 	}
+	
+	public static void main(String[] args) throws DecodingException, InvalidFilterException {
+		new InstagramCrawler().searchForImagesAt(51.930077892, 7.625061267);
+		new InstagramCrawler().searchForImagesByTags("preussen", "samstag", "gewonnen");
+	}
+
 	
 }

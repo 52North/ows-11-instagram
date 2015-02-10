@@ -28,18 +28,15 @@
  */
 package org.n52.instagram.dao;
 
-import java.util.Map;
+public class InvalidFilterException extends Exception {
 
-import org.joda.time.DateTime;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-public interface MediaDAO {
-
-	Map<?, ?> search(double latitude, double longitude);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters);
-	
-	Map<?, ?> search(double latitude, double longitude, DateTime fromDate, DateTime toDate);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters, DateTime fromDate, DateTime toDate);
+	public InvalidFilterException(String string) {
+		super(string);
+	}
 
 }

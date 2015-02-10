@@ -28,18 +28,46 @@
  */
 package org.n52.instagram.dao;
 
+import java.io.IOException;
 import java.util.Map;
 
-import org.joda.time.DateTime;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.n52.instagram.decode.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface MediaDAO {
+public abstract class AbstractRemoteDAO {
+	
+	private static final Logger logger = LoggerFactory
+			.getLogger(AbstractRemoteDAO.class);
+	protected String baseUrl;
+	protected String accessToken;
+	
+	public AbstractRemoteDAO(String baseUrl, String accessToken) {
+		this.baseUrl = baseUrl;
+		this.accessToken = accessToken;
+	}
 
-	Map<?, ?> search(double latitude, double longitude);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters);
-	
-	Map<?, ?> search(double latitude, double longitude, DateTime fromDate, DateTime toDate);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters, DateTime fromDate, DateTime toDate);
+	protected Map<?, ?> executeApiRequest(String target) {
+		HttpGet get = new HttpGet(target);
+		try (CloseableHttpClient client = HttpClientBuilder.create().build();) {
+			CloseableHttpResponse response = client.execute(get);
+			
+			if (response.getEntity() != null) {
+				Map<?, ?> json = JsonUtil.createJson(response.getEntity().getContent());
+				return json;
+			}
+			else {
+				logger.warn("Could not retrieve contents. No entity.");
+			}
+		} catch (IOException e) {
+			logger.warn("Could not retrieve contents of "+get.getURI(), e);
+		}
+		
+		return null;
+	}
 
 }

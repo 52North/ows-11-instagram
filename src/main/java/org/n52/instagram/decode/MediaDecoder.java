@@ -41,14 +41,23 @@ public class MediaDecoder {
 	private static final Logger logger = LoggerFactory
 			.getLogger(MediaDecoder.class);
 
+	
 	public List<PostedImage> parseMediaEntries(Map<?, ?> json) throws DecodingException {
+		return parseMediaEntries(json, null);
+	}
+	
+	public List<PostedImage> parseMediaEntries(Map<?, ?> json, Filter filter) throws DecodingException {
+		if (json == null) {
+			throw new DecodingException("Cannot parse null object");
+		}
+		
 		assertMeta(json.get("meta"));
 		
-		List<PostedImage> result = parseData(json.get("data"));
+		List<PostedImage> result = parseData(json.get("data"), filter);
 		return result;
 	}
 
-	private List<PostedImage> parseData(Object object) throws DecodingException {
+	private List<PostedImage> parseData(Object object, Filter filter) throws DecodingException {
 		if (!(object instanceof List<?>)) {
 			throw new DecodingException("Could not process contents of data element: "+ object);
 		}
@@ -56,10 +65,14 @@ public class MediaDecoder {
 		List<?> data = (List<?>) object;
 		
 		List<PostedImage> result = new ArrayList<>();
+		PostedImage candidate;
 		for (Object d : data) {
 			if (d instanceof Map<?, ?>) {
 				try {
-					result.add(PostedImage.fromMap((Map<?, ?>) d));
+					candidate = PostedImage.fromMap((Map<?, ?>) d);
+					if (filter == null || filter.accepts(candidate)) {
+						result.add(candidate);
+					}
 				}
 				catch (DecodingException e) {
 					logger.info("Could not parse data instance. "+ e.getMessage());

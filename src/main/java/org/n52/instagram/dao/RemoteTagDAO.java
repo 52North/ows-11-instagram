@@ -30,16 +30,17 @@ package org.n52.instagram.dao;
 
 import java.util.Map;
 
-import org.joda.time.DateTime;
+public class RemoteTagDAO extends AbstractRemoteDAO implements TagDAO {
 
-public interface MediaDAO {
+	private String LAT_LON_SCHEME = "%s/tags/%s/media/recent?access_token=%s";
+	
+	public RemoteTagDAO(String baseUrl, String accessToken) {
+		super(baseUrl, accessToken);
+	}
 
-	Map<?, ?> search(double latitude, double longitude);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters);
-	
-	Map<?, ?> search(double latitude, double longitude, DateTime fromDate, DateTime toDate);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters, DateTime fromDate, DateTime toDate);
+	@Override
+	public Map<?, ?> search(String tag) {
+		return executeApiRequest(String.format(LAT_LON_SCHEME, baseUrl, tag, accessToken));
+	}
 
 }

@@ -86,6 +86,26 @@ public class PostedImage {
 	private PostedImage() {
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		
+		if (!(obj instanceof PostedImage)) {
+			return false;
+		}
+		
+		PostedImage that = (PostedImage) obj;
+		
+		return that.id.equals(this.id);
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.id.hashCode();
+	}
+	
 	public static PostedImage fromMap(Map<?, ?> d) throws DecodingException {
 		Object type = d.get("type");
 		if (!type.equals("image")) {

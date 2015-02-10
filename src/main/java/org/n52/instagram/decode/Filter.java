@@ -26,20 +26,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  */
-package org.n52.instagram.dao;
+package org.n52.instagram.decode;
 
-import java.util.Map;
+import org.n52.instagram.model.PostedImage;
 
-import org.joda.time.DateTime;
+public interface Filter {
 
-public interface MediaDAO {
-
-	Map<?, ?> search(double latitude, double longitude);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters);
-	
-	Map<?, ?> search(double latitude, double longitude, DateTime fromDate, DateTime toDate);
-	
-	Map<?, ?> search(double latitude, double longitude, int distanceMeters, DateTime fromDate, DateTime toDate);
+	public boolean accepts(PostedImage candidate);
 
 }
