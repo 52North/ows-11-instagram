@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.n52.instagram.model.PostedImage;
+import org.n52.socialmedia.DecodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

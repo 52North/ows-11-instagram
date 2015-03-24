@@ -33,18 +33,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.n52.instagram.decode.DecodingException;
+import org.n52.socialmedia.DecodingException;
+import org.n52.socialmedia.StringUtil;
+import org.n52.socialmedia.model.HumanVisualPerceptionObservation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PostedImage {
+public class PostedImage implements HumanVisualPerceptionObservation {
 	
 	private static final Logger logger = LoggerFactory
 			.getLogger(PostedImage.class);
 
 	private String id;
 	private User user;
-	private Location location;
+	private InstagramLocation location;
 	private List<String> tags;
 	private String caption;
 	private DateTime createdTime;
@@ -59,7 +61,7 @@ public class PostedImage {
 		return user;
 	}
 
-	public Location getLocation() {
+	public InstagramLocation getLocation() {
 		return location;
 	}
 
@@ -116,7 +118,7 @@ public class PostedImage {
 		result.id = (String) d.get("id");
 		
 		result.user = User.fromMap((Map<?, ?>) d.get("user"));
-		result.location = Location.fromMap((Map<?, ?>) d.get("location"));
+		result.location = InstagramLocation.fromMap((Map<?, ?>) d.get("location"));
 		
 		result.tags = parseTags(d.get("tags"));
 		result.caption = parseCaption(d.get("caption"));
@@ -129,8 +131,8 @@ public class PostedImage {
 
 	private static DateTime parseCreatedTime(Object object) {
 		try {
-			int ts = Integer.parseInt(object.toString());
-			DateTime result = new DateTime(ts);
+			long ts = Long.parseLong(object.toString());
+			DateTime result = new DateTime(ts*1000);
 			return result;
 		}
 		catch (IllegalArgumentException e) {
@@ -151,7 +153,8 @@ public class PostedImage {
 
 	private static String parseCaption(Object object) {
 		if (object instanceof Map<?, ?>) {
-			return (String) ((Map<?, ?>) object).get("text");
+			String text = (String) ((Map<?, ?>) object).get("text");
+			return text.trim();
 		}
 		return null;
 	}
@@ -161,11 +164,68 @@ public class PostedImage {
 		
 		if (object instanceof List<?>) {
 			for (Object string : (List<?>) object) {
-				result.add((String) string);
+				String tag = (String) string;
+				tag = tag.trim();
+				if (!tag.isEmpty()) {
+					result.add(tag);
+				}
 			}
 		}
 		
 		return result;
+	}
+
+	@Override
+	public DateTime getPhenomenonTime() {
+		return this.createdTime;
+	}
+
+	@Override
+	public DateTime getResultTime() {
+		return this.createdTime;
+	}
+
+	@Override
+	public String getDescription() {
+		String result = null;; 
+		if (this.caption == null || this.caption.isEmpty()) {
+			result = StringUtil.createTagList(this.tags, " ");
+		}
+		
+		else if (this.tags.size() > 0) {
+			result = String.format("%s %s", this.caption,
+					StringUtil.createTagList(this.tags, " "));
+		}
+		
+		if (result == null) {
+			result = this.caption;
+		}
+		
+		if (result != null && result.length() > 255) {
+			result = result.substring(0, 254);
+		}
+		
+		return result;
+	}
+
+	@Override
+	public String getName() {
+		return this.id;
+	}
+
+	@Override
+	public String getIdentifier() {
+		return this.id;
+	}
+
+	@Override
+	public String getProcedure() {
+		return this.user.getInstagramURL();
+	}
+
+	@Override
+	public String getResultHref() {
+		return this.imageUrl;
 	}
 
 

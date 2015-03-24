@@ -52,5 +52,9 @@ public class User {
 		result.id = (String) map.get("id");
 		return result;
 	}
+	
+	public String getInstagramURL() {
+		return String.format("https://instagram.com/%s/", this.name);
+	}
 
 }

@@ -86,7 +86,7 @@ public class RemoteMediaDAO extends AbstractRemoteDAO implements MediaDAO {
 			int distanceMeters, DateTime fromDate, DateTime toDate) {
 		if (fromDate != null && toDate != null) {
 			return executeApiRequest(String.format(LAT_LON_DIST_FROM_TO_SCHEME,
-					baseUrl, latitude, longitude, distanceMeters, fromDate.toDate().getTime(), toDate.toDate().getTime(), accessToken));
+					baseUrl, latitude, longitude, distanceMeters, fromDate.toDate().getTime()/1000, toDate.toDate().getTime()/1000, accessToken));
 		}
 		else if (fromDate == null && toDate != null) {
 			return executeApiRequest(String.format(LAT_LON_DIST_TO_SCHEME,

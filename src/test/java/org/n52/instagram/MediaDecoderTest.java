@@ -34,10 +34,10 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
-import org.n52.instagram.decode.DecodingException;
 import org.n52.instagram.decode.JsonUtil;
 import org.n52.instagram.decode.MediaDecoder;
 import org.n52.instagram.model.PostedImage;
+import org.n52.socialmedia.DecodingException;
 
 import static org.hamcrest.CoreMatchers.*;
 
@@ -64,7 +64,7 @@ public class MediaDecoderTest {
 		Assert.assertThat(first.getLocation().getName(), is("Preußenstadion"));
 		
 		Assert.assertThat(first.getLink(), is("http://instagram.com/p/y4NIpoLxb1/"));
-		Assert.assertThat(first.getCreatedTime(), is(new DateTime(1423480138)));
+		Assert.assertThat(first.getCreatedTime(), is(new DateTime(1423480138000l)));
 		Assert.assertThat(first.getImageUrl(), is("http://scontent-b.cdninstagram.com/hphotos-xfp1/t51.2885-15/e15/1738807_817181801669643_1680497657_n.jpg"));
 	}
 	

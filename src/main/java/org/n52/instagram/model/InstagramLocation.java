@@ -30,14 +30,16 @@ package org.n52.instagram.model;
 
 import java.util.Map;
 
-public class Location {
+import org.n52.socialmedia.model.Location;
+
+public class InstagramLocation implements Location {
 
 	private Double latitude;
 	private Double longitude;
 	private Integer id;
 	private String name;
 
-	private Location() {
+	private InstagramLocation() {
 	}
 	
 	public Double getLatitude() {
@@ -56,12 +58,12 @@ public class Location {
 		return name;
 	}
 
-	public static Location fromMap(Map<?, ?> map) {
+	public static InstagramLocation fromMap(Map<?, ?> map) {
 		if (map == null) {
 			return null;
 		}
 		
-		Location result = new Location();
+		InstagramLocation result = new InstagramLocation();
 		
 		result.latitude = (Double) map.get("latitude");
 		result.longitude = (Double) map.get("longitude");

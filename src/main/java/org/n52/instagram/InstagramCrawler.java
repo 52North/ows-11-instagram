@@ -37,18 +37,21 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.n52.instagram.dao.InvalidFilterException;
+import org.joda.time.DateTime;
 import org.n52.instagram.dao.MediaDAO;
 import org.n52.instagram.dao.RemoteMediaDAO;
 import org.n52.instagram.dao.RemoteTagDAO;
-import org.n52.instagram.decode.DecodingException;
 import org.n52.instagram.decode.Filter;
 import org.n52.instagram.decode.MediaDecoder;
 import org.n52.instagram.model.PostedImage;
+import org.n52.socialmedia.DecodingException;
+import org.n52.socialmedia.Harvester;
+import org.n52.socialmedia.InvalidFilterException;
+import org.n52.socialmedia.model.HumanVisualPerceptionObservation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InstagramCrawler {
+public class InstagramCrawler implements Harvester {
 
 	private static final Logger logger = LoggerFactory.getLogger(InstagramCrawler.class);
 	
@@ -83,18 +86,28 @@ public class InstagramCrawler {
 		
 	}
 	
-	public Collection<PostedImage> searchForImagesAt(double latitude, double longitude) throws DecodingException {
-		List<PostedImage> result = new ArrayList<>();
+	public Collection<HumanVisualPerceptionObservation> searchForImagesAt(double latitude, double longitude, DateTime start, DateTime end) throws DecodingException {
+		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
 		
 		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
 		MediaDecoder decoder = new MediaDecoder();
 		
-		result = decoder.parseMediaEntries(dao.search(latitude, longitude, 5000));
+		result.addAll(decoder.parseMediaEntries(dao.search(latitude, longitude, 5000, start, end)));
 		return result;
 	}
 	
-	public Collection<PostedImage> searchForImagesByTags(final String... tags) throws DecodingException, InvalidFilterException {
-		Set<PostedImage> result = new HashSet<>();
+	public Collection<HumanVisualPerceptionObservation> searchForImagesAt(double latitude, double longitude) throws DecodingException {
+		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
+		
+		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
+		MediaDecoder decoder = new MediaDecoder();
+		
+		result.addAll(decoder.parseMediaEntries(dao.search(latitude, longitude, 5000)));
+		return result;
+	}
+	
+	public Collection<HumanVisualPerceptionObservation> searchForImagesByTags(final String... tags) throws DecodingException, InvalidFilterException {
+		Set<HumanVisualPerceptionObservation> result = new HashSet<>();
 		
 		if (tags != null && tags.length > 0 && tags.length <= 3) {
 			RemoteTagDAO dao = new RemoteTagDAO(baseUrl, accessToken);
