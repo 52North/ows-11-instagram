@@ -38,7 +38,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.n52.instagram.dao.MediaDAO;
 import org.n52.instagram.dao.RemoteMediaDAO;
 import org.n52.instagram.dao.RemoteTagDAO;
 import org.n52.instagram.decode.Filter;
@@ -47,6 +46,7 @@ import org.n52.instagram.model.PostedImage;
 import org.n52.socialmedia.DecodingException;
 import org.n52.socialmedia.Harvester;
 import org.n52.socialmedia.InvalidFilterException;
+import org.n52.socialmedia.dao.MediaDAO;
 import org.n52.socialmedia.model.HumanVisualPerceptionObservation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class InstagramCrawler implements Harvester {
 		
 	}
 	
-	public Collection<HumanVisualPerceptionObservation> searchForImagesAt(double latitude, double longitude, DateTime start, DateTime end) throws DecodingException {
+	public Collection<HumanVisualPerceptionObservation> searchForObservationsAt(double latitude, double longitude, DateTime start, DateTime end) throws DecodingException {
 		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
 		
 		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
@@ -96,7 +96,7 @@ public class InstagramCrawler implements Harvester {
 		return result;
 	}
 	
-	public Collection<HumanVisualPerceptionObservation> searchForImagesAt(double latitude, double longitude) throws DecodingException {
+	public Collection<HumanVisualPerceptionObservation> searchForObservationsAt(double latitude, double longitude) throws DecodingException {
 		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
 		
 		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
@@ -106,7 +106,7 @@ public class InstagramCrawler implements Harvester {
 		return result;
 	}
 	
-	public Collection<HumanVisualPerceptionObservation> searchForImagesByTags(final String... tags) throws DecodingException, InvalidFilterException {
+	public Collection<HumanVisualPerceptionObservation> searchForObservationsByTags(final String... tags) throws DecodingException, InvalidFilterException {
 		Set<HumanVisualPerceptionObservation> result = new HashSet<>();
 		
 		if (tags != null && tags.length > 0 && tags.length <= 3) {
@@ -137,8 +137,8 @@ public class InstagramCrawler implements Harvester {
 	}
 	
 	public static void main(String[] args) throws DecodingException, InvalidFilterException {
-		new InstagramCrawler().searchForImagesAt(51.930077892, 7.625061267);
-		new InstagramCrawler().searchForImagesByTags("preussen", "samstag", "gewonnen");
+		new InstagramCrawler().searchForObservationsAt(51.930077892, 7.625061267);
+		new InstagramCrawler().searchForObservationsByTags("preussen", "samstag", "gewonnen");
 	}
 
 	
