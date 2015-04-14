@@ -60,15 +60,6 @@ public class InstagramHarvester implements Harvester {
 	private String baseUrl;
 
 	public InstagramHarvester() {
-		loadProperties();
-		loadDaoImplementations();
-	}
-
-	private void loadDaoImplementations() {
-		
-	}
-
-	private void loadProperties() {
 		InputStream is = getClass().getResourceAsStream(INSTAGRAM_CREDENTIALS_PROPERTIES);
 		if (is == null) {
 			throw new IllegalStateException(INSTAGRAM_CREDENTIALS_PROPERTIES + " file not found.");
@@ -83,9 +74,8 @@ public class InstagramHarvester implements Harvester {
 			logger.warn("properties malformed or unreadable", e);
 			throw new IllegalStateException(e);
 		}
-		
 	}
-	
+
 	public Collection<HumanVisualPerceptionObservation> searchForObservationsAt(double latitude, double longitude, DateTime start, DateTime end) throws DecodingException {
 		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
 		
