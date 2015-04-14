@@ -68,8 +68,8 @@ public class InstagramHarvester implements Harvester {
 		Properties props = new Properties();
 		try {
 			props.load(is);
-			this.accessToken = props.getProperty("ACCESS_TOKEN");
-			this.baseUrl = props.getProperty("BASE_URL");
+			accessToken = props.getProperty("ACCESS_TOKEN");
+			baseUrl = props.getProperty("BASE_URL");
 		} catch (IOException e) {
 			logger.warn("properties malformed or unreadable", e);
 			throw new IllegalStateException(e);

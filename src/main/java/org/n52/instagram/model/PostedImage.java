@@ -192,7 +192,7 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 		if (result == null) {
 			result = caption;
 		}
-				
+		
 		return String.format("%s; URL: %s", result, imageUrl);
 	}
 
@@ -208,7 +208,7 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 
 	@Override
 	public String getResultHref() {
-		return imageUrl;
+		return link;
 	}
 
 }
