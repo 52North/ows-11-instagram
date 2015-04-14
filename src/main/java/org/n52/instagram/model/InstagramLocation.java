@@ -19,7 +19,7 @@
  * Therefore the distribution of the program linked with libraries licensed
  * under the aforementioned licenses, is permitted by the copyright holders
  * if the distribution is compliant with both the GNU General Public
- * icense version 2 and the aforementioned licenses.
+ * license version 2 and the aforementioned licenses.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -36,7 +36,7 @@ public class InstagramLocation implements Location {
 
 	private Double latitude;
 	private Double longitude;
-	private Integer id;
+	private String id;
 	private String name;
 
 	private InstagramLocation() {
@@ -50,7 +50,7 @@ public class InstagramLocation implements Location {
 		return longitude;
 	}
 
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -70,7 +70,7 @@ public class InstagramLocation implements Location {
 		
 		Object id = map.get("id");
 		if (id != null) {
-			result.id = (Integer) id;
+			result.id = id.toString();
 		}
 		
 		Object name = map.get("name");
