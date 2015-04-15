@@ -184,7 +184,7 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 		String result = null;
 		if (caption == null || caption.isEmpty()) {
 			result = StringUtil.createTagList(tags, " ");
-		} else if (tags.size() > 0) {
+		} else if (tags != null && !tags.isEmpty()) {
 			result = String.format("%s; Tags: %s", caption,
 					StringUtil.createTagList(tags, " "));
 		}
