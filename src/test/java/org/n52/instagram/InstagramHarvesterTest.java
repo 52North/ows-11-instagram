@@ -26,48 +26,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  */
-package org.n52.instagram.dao;
+package org.n52.instagram;
 
-import java.io.IOException;
-import java.util.Map;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.n52.socialmedia.DecodingException;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.n52.instagram.decode.JsonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRemoteDAO {
+public class InstagramHarvesterTest {
 	
-	private static final Logger logger = LoggerFactory
-			.getLogger(AbstractRemoteDAO.class);
-	protected String baseUrl;
-	protected String accessToken;
-	
-	public AbstractRemoteDAO(String baseUrl, String accessToken) {
-		this.baseUrl = baseUrl;
-		this.accessToken = accessToken;
+	@Test @Ignore
+	public void testSearchByLocation() throws DecodingException{
+		new InstagramHarvester().searchForObservationsAt(51.930077892, 7.625061267);
 	}
-
-	protected Map<?, ?> executeApiRequest(String target) {
-		HttpGet get = new HttpGet(target);
-		try (CloseableHttpClient client = HttpClientBuilder.create().build();) {
-			CloseableHttpResponse response = client.execute(get);
-			
-			if (response.getEntity() != null) {
-				Map<?, ?> json = JsonUtil.createJson(response.getEntity().getContent());
-				return json;
-			}
-			else {
-				logger.warn("Could not retrieve contents. No entity.");
-			}
-		} catch (IOException e) {
-			logger.warn("Could not retrieve contents of "+get.getURI(), e);
-		}
-		
-		return null;
+	
+	@Test @Ignore
+	public void testSearchByTags() throws DecodingException {
+		new InstagramHarvester().searchForObservationsByTags("preussen", "samstag", "gewonnen");
 	}
 
 }

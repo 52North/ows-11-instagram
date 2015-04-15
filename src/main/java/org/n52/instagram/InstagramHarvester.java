@@ -19,7 +19,7 @@
  * Therefore the distribution of the program linked with libraries licensed
  * under the aforementioned licenses, is permitted by the copyright holders
  * if the distribution is compliant with both the GNU General Public
- * icense version 2 and the aforementioned licenses.
+ * license version 2 and the aforementioned licenses.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -46,29 +47,19 @@ import org.n52.instagram.decode.MediaDecoder;
 import org.n52.instagram.model.PostedImage;
 import org.n52.socialmedia.DecodingException;
 import org.n52.socialmedia.Harvester;
-import org.n52.socialmedia.InvalidFilterException;
 import org.n52.socialmedia.model.HumanVisualPerceptionObservation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InstagramCrawler implements Harvester {
+public class InstagramHarvester implements Harvester {
 
-	private static final Logger logger = LoggerFactory.getLogger(InstagramCrawler.class);
+	private static final Logger logger = LoggerFactory.getLogger(InstagramHarvester.class);
 	
 	private static final String INSTAGRAM_CREDENTIALS_PROPERTIES = "/instagram_credentials.properties";
 	private String accessToken;
 	private String baseUrl;
 
-	public InstagramCrawler() {
-		loadProperties();
-		loadDaoImplementations();
-	}
-
-	private void loadDaoImplementations() {
-		
-	}
-
-	private void loadProperties() {
+	public InstagramHarvester() {
 		InputStream is = getClass().getResourceAsStream(INSTAGRAM_CREDENTIALS_PROPERTIES);
 		if (is == null) {
 			throw new IllegalStateException(INSTAGRAM_CREDENTIALS_PROPERTIES + " file not found.");
@@ -77,16 +68,15 @@ public class InstagramCrawler implements Harvester {
 		Properties props = new Properties();
 		try {
 			props.load(is);
-			this.accessToken = props.getProperty("ACCESS_TOKEN");
-			this.baseUrl = props.getProperty("BASE_URL");
+			accessToken = props.getProperty("ACCESS_TOKEN");
+			baseUrl = props.getProperty("BASE_URL");
 		} catch (IOException e) {
 			logger.warn("properties malformed or unreadable", e);
 			throw new IllegalStateException(e);
 		}
-		
 	}
-	
-	public Collection<HumanVisualPerceptionObservation> searchForImagesAt(double latitude, double longitude, DateTime start, DateTime end) throws DecodingException {
+
+	public Collection<HumanVisualPerceptionObservation> searchForObservationsAt(double latitude, double longitude, DateTime start, DateTime end) throws DecodingException {
 		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
 		
 		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
@@ -96,7 +86,7 @@ public class InstagramCrawler implements Harvester {
 		return result;
 	}
 	
-	public Collection<HumanVisualPerceptionObservation> searchForImagesAt(double latitude, double longitude) throws DecodingException {
+	public Collection<HumanVisualPerceptionObservation> searchForObservationsAt(double latitude, double longitude) throws DecodingException {
 		List<HumanVisualPerceptionObservation> result = new ArrayList<>();
 		
 		MediaDAO dao = new RemoteMediaDAO(baseUrl, accessToken);
@@ -106,7 +96,7 @@ public class InstagramCrawler implements Harvester {
 		return result;
 	}
 	
-	public Collection<HumanVisualPerceptionObservation> searchForImagesByTags(final String... tags) throws DecodingException, InvalidFilterException {
+	public Collection<HumanVisualPerceptionObservation> searchForObservationsByTags(final String... tags) throws DecodingException {
 		Set<HumanVisualPerceptionObservation> result = new HashSet<>();
 		
 		if (tags != null && tags.length > 0 && tags.length <= 3) {
@@ -130,16 +120,22 @@ public class InstagramCrawler implements Harvester {
 			}
 		}
 		else {
-			throw new InvalidFilterException("At least one and maximum three tags are allowed");
+			throw new IllegalArgumentException("At least one and maximum three tags are allowed");
 		}
 		
 		return result;	
 	}
-	
-	public static void main(String[] args) throws DecodingException, InvalidFilterException {
-		new InstagramCrawler().searchForImagesAt(51.930077892, 7.625061267);
-		new InstagramCrawler().searchForImagesByTags("preussen", "samstag", "gewonnen");
+
+	@Override
+	public List<String> getSearchTerms() {
+		return Collections.emptyList();
 	}
 
+	@Override
+	public Collection<HumanVisualPerceptionObservation> getByIds(String... ids)
+			throws DecodingException {
+		// TODO implement
+		throw new RuntimeException("NOT YET IMPLEMENTED");
+	}
 	
 }
