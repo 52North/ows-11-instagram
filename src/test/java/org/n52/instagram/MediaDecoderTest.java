@@ -54,8 +54,8 @@ public class MediaDecoderTest {
 		PostedImage first = entries.get(0);
 		PostedImage last = entries.get(entries.size()-1);
 		
-		Assert.assertThat(first.getProcedure().getName(), is("375488012"));
-		Assert.assertThat(last.getProcedure().getName(), is("282034696"));
+		Assert.assertThat(first.getProcedure().getName(), is("lauracds198"));
+		Assert.assertThat(last.getProcedure().getName(), is("viktorwotke"));
 		
 		Assert.assertTrue(first.getTags().contains("münster"));
 		

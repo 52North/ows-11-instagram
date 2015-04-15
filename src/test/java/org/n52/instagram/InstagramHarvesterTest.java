@@ -35,7 +35,7 @@ import org.n52.socialmedia.DecodingException;
 
 public class InstagramHarvesterTest {
 	
-	@Test
+	@Test @Ignore
 	public void testSearchByLocation() throws DecodingException{
 		new InstagramHarvester().searchForObservationsAt(51.930077892, 7.625061267);
 	}
