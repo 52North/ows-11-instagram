@@ -19,7 +19,7 @@
  * Therefore the distribution of the program linked with libraries licensed
  * under the aforementioned licenses, is permitted by the copyright holders
  * if the distribution is compliant with both the GNU General Public
- * icense version 2 and the aforementioned licenses.
+ * license version 2 and the aforementioned licenses.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -34,8 +34,9 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.n52.socialmedia.DecodingException;
-import org.n52.socialmedia.StringUtil;
 import org.n52.socialmedia.model.HumanVisualPerceptionObservation;
+import org.n52.socialmedia.model.Procedure;
+import org.n52.socialmedia.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 			.getLogger(PostedImage.class);
 
 	private String id;
-	private User user;
+	private Procedure procedure;
 	private InstagramLocation location;
 	private List<String> tags;
 	private String caption;
@@ -53,14 +54,6 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 	private String imageUrl;
 	private String link;
 	
-	public String getId() {
-		return id;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
 	public InstagramLocation getLocation() {
 		return location;
 	}
@@ -117,7 +110,8 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 		PostedImage result = new PostedImage();
 		result.id = (String) d.get("id");
 		
-		result.user = User.fromMap((Map<?, ?>) d.get("user"));
+		User user = User.fromMap((Map<?, ?>) d.get("user"));
+		result.procedure = new Procedure(user.getName(), user.getInstagramURL());
 		result.location = InstagramLocation.fromMap((Map<?, ?>) d.get("location"));
 		
 		result.tags = parseTags(d.get("tags"));
@@ -186,47 +180,35 @@ public class PostedImage implements HumanVisualPerceptionObservation {
 	}
 
 	@Override
-	public String getDescription() {
-		String result = null;; 
-		if (this.caption == null || this.caption.isEmpty()) {
-			result = StringUtil.createTagList(this.tags, " ");
-		}
-		
-		else if (this.tags.size() > 0) {
-			result = String.format("%s %s", this.caption,
-					StringUtil.createTagList(this.tags, " "));
+	public String getResult() {
+		String result = null;
+		if (caption == null || caption.isEmpty()) {
+			result = StringUtil.createTagList(tags, " ");
+		} else if (tags != null && !tags.isEmpty()) {
+			result = String.format("%s; Tags: %s", caption,
+					StringUtil.createTagList(tags, " "));
 		}
 		
 		if (result == null) {
-			result = this.caption;
+			result = caption;
 		}
 		
-		if (result != null && result.length() > 255) {
-			result = result.substring(0, 254);
-		}
-		
-		return result;
-	}
-
-	@Override
-	public String getName() {
-		return this.id;
+		return String.format("%s; URL: %s", result, imageUrl);
 	}
 
 	@Override
 	public String getIdentifier() {
-		return this.id;
+		return id;
 	}
 
 	@Override
-	public String getProcedure() {
-		return this.user.getInstagramURL();
+	public Procedure getProcedure() {
+		return this.procedure;
 	}
 
 	@Override
 	public String getResultHref() {
-		return this.imageUrl;
+		return link;
 	}
-
 
 }
